@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-  var loginModal = document.getElementById('loginModal');
+  var loginModal    = document.getElementById('loginModal');
   var registerModal = document.getElementById('registerModal');
   var toastContainer = document.getElementById('toast-container');
-  var loginLink = document.getElementById('loginLink');
-  var userMenu = document.getElementById('userMenu');
+  var loginLink   = document.getElementById('loginLink');
+  var userMenu    = document.getElementById('userMenu');
   var usernameDisplay = document.getElementById('usernameDisplay');
   var logoutLink = document.getElementById('logoutLink');
 
@@ -14,16 +14,24 @@ document.addEventListener('DOMContentLoaded', function() {
   function closeModal() {
       toggleModalVisibility(loginModal, false);
       toggleModalVisibility(registerModal, false);
+      resetForms();
   }
 
   function showLoginModal() {
       toggleModalVisibility(loginModal, true);
       toggleModalVisibility(registerModal, false);
+      resetForms();
   }
 
   function showRegisterModal() {
       toggleModalVisibility(loginModal, false);
       toggleModalVisibility(registerModal, true);
+      resetForms();
+  }
+
+  function resetForms() {
+      document.getElementById('loginForm').reset();
+      document.getElementById('registerForm').reset();
   }
 
   function addEventListeners() {
@@ -167,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function updateUserInterface(username) {
       loginLink.style.display = 'none';
-      usernameDisplay.textContent = 'Bienvenido, '+username;
+      usernameDisplay.textContent = 'Bienvenido, ' + username;
       userMenu.style.display = 'flex';
   }
 
