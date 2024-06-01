@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delicias del Mar</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/modal_styles.css">
+    <link rel="stylesheet" href="/static/css/toast_container.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -16,6 +18,9 @@
                 <li><a href="#">Recetas</a></li>
                 <li><a href="#">Contacto</a></li>
                 <li><a href="#" id="loginLink">Iniciar sesión</a></li>
+                <li id="userMenu" style="display: none;">
+                    <span id="usernameDisplay"></span>
+                    <a href="#" id="logoutLink">Cerrar sesión</a>
             </ul>
         </nav>
         <h1>Delicias del Mar</h1>
@@ -52,16 +57,37 @@
             </div>
         </div>
     </main>
+    <!-- Modal de Inicio de Sesión -->
+    <section class="modal" id="loginModal" style="display: none;">
+        <div class="modal_container">
+            <a href="#" class="modal_close">&times;</a>
+            <p class="modal_title">Bienvenido, por favor inicia sesión</p>
+            <form id="loginForm">
+                <input type="text" class="modal_username" placeholder="Nombre de usuario">
+                <input type="password" class="modal_userpassword" placeholder="Contraseña">
+                <button type="submit">Iniciar sesión</button>
+                <p class="modal_text">¿Todavía no tiene cuenta? <a href="#" id="showRegister">Haz click aquí</a></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Modal de Registro -->
+    <section class="modal" id="registerModal" style="display: none;">
+        <div class="modal_container">
+            <a href="#" class="modal_close">&times;</a>
+            <p class="modal_title">Regístrese, por favor</p>
+            <form id="registerForm">
+                <input type="text" class="modal_username" placeholder="Nombre de usuario">
+                <input type="password" class="modal_userpassword" placeholder="Contraseña">
+                <button type="submit">Registrarse</button>
+                <p class="modal_text">¿Ya tiene cuenta? <a href="#" id="showLogin">Haz click aquí</a></p>
+            </form>
+        </div>
+    </section>
+    <div id="toast-container"></div>
     <footer>
         <p>Disfruta del mejor marisco con la más alta calidad. &copy; 2024 Delicias del Mar</p>
     </footer>
-    <div id="loginCard" style="display: none;">
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Nombre de usuario">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button type="submit">Iniciar sesión</button>
-        </form>
-    </div>
     <script src="/static/scripts/script.js"></script>
 </body>
 </html>

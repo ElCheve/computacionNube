@@ -161,4 +161,13 @@ footer {
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Estilos para ocultar la ventana emergente */
+
+
+#userMenu {
+    display: flex;
+    align-items: center;
+    gap: 1em; /* Añadido para dar espacio entre el nombre de usuario y el botón de cerrar sesión */
+}
+#userMenu span {
+    font-weight: bold;
+}

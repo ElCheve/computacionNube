@@ -1,221 +1,181 @@
-// Obtener el elemento de la lista
-var loginLink = document.getElementById("loginLink");
+document.addEventListener('DOMContentLoaded', function() {
+  var loginModal = document.getElementById('loginModal');
+  var registerModal = document.getElementById('registerModal');
+  var toastContainer = document.getElementById('toast-container');
+  var loginLink = document.getElementById('loginLink');
+  var userMenu = document.getElementById('userMenu');
+  var usernameDisplay = document.getElementById('usernameDisplay');
+  var logoutLink = document.getElementById('logoutLink');
 
-// Crear el div para la ventana emergente
-var modal = document.createElement("div");
-modal.className = "modal";
-modal.style.display = "none";
-modal.style.position = "fixed";
-modal.style.zIndex = "1";
-modal.style.left = "0";
-modal.style.top = "0";
-modal.style.width = "100%";
-modal.style.height = "100%";
-modal.style.overflow = "auto";
-modal.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+  function toggleModalVisibility(modal, isVisible) {
+      modal.style.display = isVisible ? 'flex' : 'none';
+  }
 
-var modalContent = document.createElement("div");
-modalContent.className = "modal-content";
-modalContent.style.backgroundColor = "#fff";
-modalContent.style.margin = "auto";
-modalContent.style.padding = "20px";
-modalContent.style.borderRadius = "10px";
-modalContent.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
-modalContent.style.maxWidth = "400px";
-modalContent.style.width = "90%";
-modalContent.style.textAlign = "center";
-modalContent.style.position = "absolute";
-modalContent.style.top = "50%";
-modalContent.style.left = "50%";
-modalContent.style.transform = "translate(-50%, -50%)";
+  function closeModal() {
+      toggleModalVisibility(loginModal, false);
+      toggleModalVisibility(registerModal, false);
+  }
 
-modal.appendChild(modalContent);
-document.body.appendChild(modal);
+  function showLoginModal() {
+      toggleModalVisibility(loginModal, true);
+      toggleModalVisibility(registerModal, false);
+  }
 
-// Función para mostrar el formulario de inicio de sesión
-function showLoginForm() {
-  modalContent.innerHTML = `
-    <span class="close" style="color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
-    <h2 style="margin-bottom: 20px; font-size: 1.5rem; color: #333;">Iniciar sesión</h2>
-    <form id="loginForm">
-      <label for="username" style="margin-bottom: 10px; font-weight: bold; color: #555;">Usuario:</label>
-      <input type="text" id="username" name="username" style="padding: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;">
-      <br>
-      <label for="password" style="margin-bottom: 10px; font-weight: bold; color: #555;">Contraseña:</label>
-      <input type="password" id="password" name="password" style="padding: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;">
-      <br>
-      <button type="submit" style="background-color: #007bff; color: #fff; border: none; padding: 10px; cursor: pointer; width: 100%;">Iniciar sesión</button>
-    </form>
-    <p style="margin-top: 15px; font-size: 0.9rem;">¿Todavía no tienes cuenta? <a href="#" id="registerLink" style="color: #007bff;">Haz click aquí</a></p>
-  `;
+  function showRegisterModal() {
+      toggleModalVisibility(loginModal, false);
+      toggleModalVisibility(registerModal, true);
+  }
 
-  var closeBtn = modalContent.querySelector(".close");
-  closeBtn.onclick = function() {
-    modal.style.display = "none";
-  };
+  function addEventListeners() {
+      loginLink.addEventListener('click', function(event) {
+          event.preventDefault();
+          showLoginModal();
+      });
 
-  var registerLink = modalContent.querySelector("#registerLink");
-  registerLink.onclick = function(event) {
-    event.preventDefault();
-    showRegisterForm();
-  };
+      var closeButtons = document.querySelectorAll('.modal_close');
+      closeButtons.forEach(function(element) {
+          element.addEventListener('click', function(event) {
+              event.preventDefault();
+              closeModal();
+          });
+      });
 
-  var loginForm = document.getElementById("loginForm");
-  loginForm.onsubmit = function(event) {
-    event.preventDefault(); // Asegurarse de que el formulario no se envíe de manera tradicional
-    var username = document.getElementById("username").value;
-    var password = document.getElementById("password").value;
+      document.getElementById('showRegister').addEventListener('click', function(event) {
+          event.preventDefault();
+          showRegisterModal();
+      });
 
-    console.log('Intentando iniciar sesión con:', { username, password });
+      document.getElementById('showLogin').addEventListener('click', function(event) {
+          event.preventDefault();
+          showLoginModal();
+      });
 
-    fetch('http://127.0.0.1:8001/api/v1/login/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: username, password: password }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Datos recibidos del servidor:', data);
-      if (data.access_token) {
-        alert('Inicio de sesión exitoso');
-        modal.style.display = "none";
-        handleLoginSuccess(username);
-      } else {
-        alert('Error en el inicio de sesión: ' + data.detail);
+      document.getElementById('loginForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          handleLogin();
+      });
+
+      document.getElementById('registerForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          handleRegister();
+      });
+
+      logoutLink.addEventListener('click', function(event) {
+          event.preventDefault();
+          handleLogout();
+      });
+  }
+
+  function createToast(message, type) {
+      var toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.innerHTML = '<span class="toast-icon">' + (type === 'success' ? '&#x2714;' : '&#x26A0;') + '</span>' + message;
+      toastContainer.appendChild(toast);
+
+      setTimeout(function() {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(-20px)';
+          setTimeout(function() {
+              toastContainer.removeChild(toast);
+          }, 500);
+      }, 3000);
+  }
+
+  function handleLogin() {
+      var username = document.querySelector('#loginForm .modal_username').value.trim();
+      var password = document.querySelector('#loginForm .modal_userpassword').value.trim();
+
+      if (!username || !password) {
+          createToast('Por favor, complete todos los campos.', 'error');
+          return;
       }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  };
-}
 
-// Función para mostrar el formulario de registro
-function showRegisterForm() {
-  modalContent.innerHTML = `
-    <span class="close" style="color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
-    <h2 style="margin-bottom: 20px; font-size: 1.5rem; color: #333;">Registrarse</h2>
-    <form id="registerForm">
-      <label for="newUsername" style="margin-bottom: 10px; font-weight: bold; color: #555;">Usuario:</label>
-      <input type="text" id="newUsername" name="newUsername" style="padding: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;">
-      <br>
-      <label for="newPassword" style="margin-bottom: 10px; font-weight: bold; color: #555;">Contraseña:</label>
-      <input type="password" id="newPassword" name="newPassword" style="padding: 10px; margin-bottom: 15px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px;">
-      <br>
-      <button type="submit" style="background-color: #007bff; color: #fff; border: none; padding: 10px; cursor: pointer; width: 100%;">Registrarse</button>
-    </form>
-    <p style="margin-top: 15px; font-size: 0.9rem;">¿Ya tienes cuenta? <a href="#" id="loginLinkInRegister" style="color: #007bff;">Inicia sesión aquí</a></p>
-  `;
+      fetch('http://127.0.0.1:8001/api/v1/login/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username: username, password: password })
+      })
+      .then(function(response) {
+          return response.json().then(function(data) {
+              if (!response.ok) {
+                  var error = new Error(data.message || 'Error al iniciar sesión');
+                  error.status = response.status;
+                  throw error;
+              }
+              return data;
+          });
+      })
+      .then(function(data) {
+          if (data.success) {
+              createToast('Inicio de sesión exitoso', 'success');
+              closeModal();
+              updateUserInterface(username);
+          } else {
+              createToast('Error al iniciar sesión: ' + data.message, 'error');
+          }
+      })
+      .catch(function(error) {
+          handleError(error, 'Error al iniciar sesión');
+      });
+  }
 
-  var closeBtn = modalContent.querySelector(".close");
-  closeBtn.onclick = function() {
-    modal.style.display = "none";
-  };
+  function handleRegister() {
+      var username = document.querySelector('#registerForm .modal_username').value.trim();
+      var password = document.querySelector('#registerForm .modal_userpassword').value.trim();
 
-  var loginLinkInRegister = modalContent.querySelector("#loginLinkInRegister");
-  loginLinkInRegister.onclick = function(event) {
-    event.preventDefault();
-    showLoginForm();
-  };
-
-  var registerForm = document.getElementById("registerForm");
-  registerForm.onsubmit = function(event) {
-    event.preventDefault(); // Asegurarse de que el formulario no se envíe de manera tradicional
-    var newUsername = document.getElementById("newUsername").value;
-    var newPassword = document.getElementById("newPassword").value;
-
-    console.log('Intentando registrar con:', { newUsername, newPassword });
-
-    fetch('http://127.0.0.1:8001/api/v1/login/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: newUsername, password: newPassword }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Datos recibidos del servidor:', data);
-      if (data.success) {
-        alert('Registro exitoso');
-        showLoginForm();
-      } else {
-        alert('Error en el registro: ' + data.message);
+      if (!username || !password) {
+          createToast('Por favor, complete todos los campos.', 'error');
+          return;
       }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  };
-}
 
-// Función para manejar el éxito del inicio de sesión
-function handleLoginSuccess(username) {
-  var nav = document.querySelector("nav ul");
-  
-  // Eliminar el enlace de iniciar sesión
-  var loginLink = document.getElementById("loginLink");
-  if (loginLink) {
-    loginLink.parentNode.removeChild(loginLink);
+      fetch('http://127.0.0.1:8001/api/v1/login/register', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username: username, password: password })
+      })
+      .then(function(response) {
+          return response.json().then(function(data) {
+              if (!response.ok) {
+                  var error = new Error(data.message || 'Error al registrarse');
+                  error.status = response.status;
+                  throw error;
+              }
+              return data;
+          });
+      })
+      .then(function(data) {
+          if (data.success) {
+              createToast('Registro exitoso', 'success');
+              showLoginModal();
+          } else {
+              createToast('Error al registrarse: ' + data.message, 'error');
+          }
+      })
+      .catch(function(error) {
+          handleError(error, 'Error al registrarse');
+      });
   }
-  
-  // Crear el elemento de saludo
-  var greetingItem = document.createElement("li");
-  greetingItem.id = "greeting";
-  greetingItem.textContent = `Hola, ${username}`;
-  nav.appendChild(greetingItem);
-  
-  // Crear el enlace de cerrar sesión
-  var logoutItem = document.createElement("li");
-  var logoutLink = document.createElement("a");
-  logoutLink.href = "#";
-  logoutLink.textContent = "Cerrar sesión";
-  logoutLink.onclick = function(event) {
-    event.preventDefault();
-    handleLogout();
-  };
-  logoutItem.appendChild(logoutLink);
-  nav.appendChild(logoutItem);
-}
 
-// Función para manejar el cierre de sesión
-function handleLogout() {
-  var nav = document.querySelector("nav ul");
-  
-  // Eliminar el saludo y el enlace de cerrar sesión
-  var greetingItem = document.getElementById("greeting");
-  if (greetingItem) {
-    nav.removeChild(greetingItem);
+  function handleError(error, contextMessage) {
+      console.error(contextMessage, error);
+      createToast(contextMessage + ': ' + error.message, 'error');
   }
-  var logoutItem = nav.querySelector("li a[href='#']").parentNode;
-  if (logoutItem) {
-    nav.removeChild(logoutItem);
+
+  function updateUserInterface(username) {
+      loginLink.style.display = 'none';
+      usernameDisplay.textContent = 'Bienvenido, '+username;
+      userMenu.style.display = 'flex';
   }
-  
-  // Restaurar el enlace de iniciar sesión
-  var loginItem = document.createElement("li");
-  var loginLink = document.createElement("a");
-  loginLink.href = "#";
-  loginLink.id = "loginLink";
-  loginLink.textContent = "Iniciar sesión";
-  loginLink.onclick = function(event) {
-    event.preventDefault();
-    createModal();
-  };
-  loginItem.appendChild(loginLink);
-  nav.appendChild(loginItem);
-}
 
-// Asignar la función createModal al evento clic del enlace
-loginLink.onclick = function(event) {
-  event.preventDefault();
-  createModal();
-};
+  function handleLogout() {
+      loginLink.style.display = 'block';
+      userMenu.style.display = 'none';
+      createToast('Has cerrado sesión.', 'success');
+  }
 
-// Inicialmente mostrar el formulario de inicio de sesión
-function createModal() {
-  showLoginForm();
-  modal.style.display = "block";
-}
+  addEventListeners();
+});
